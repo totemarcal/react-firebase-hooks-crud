@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import TutorialDataService from "../services/TutorialService";
+import TutorialDataService from "../services/TutorialServiceFirebase";
 
 const AddTutorial = () => {
   const initialTutorialState = {
@@ -19,17 +19,12 @@ const AddTutorial = () => {
   const saveTutorial = () => {
     var data = {
       title: tutorial.title,
-      description: tutorial.description
+      description: tutorial.description,
+      published: false
     };
 
     TutorialDataService.create(data)
       .then(response => {
-        setTutorial({
-          id: response.data.id,
-          title: response.data.title,
-          description: response.data.description,
-          published: response.data.published
-        });
         setSubmitted(true);
         console.log(response.data);
       })

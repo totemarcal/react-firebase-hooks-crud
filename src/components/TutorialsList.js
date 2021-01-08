@@ -1,38 +1,23 @@
 import React, { useState, useEffect } from "react";
+import { useList } from "react-firebase-hooks/database";
 import { Link } from "react-router-dom";
-import TutorialDataService from "../services/TutorialService";
+import TutorialDataService from "../services/TutorialServiceFirebase";
 import Pagination from "@material-ui/lab/Pagination";
 
 
 const TutorialsList = () => {
-  const data = [{
-    id: 1,
-    title: "Teste 1",
-    description: "Teste 1",
-    published: false
-  },
-  {
-    id: 2,
-    title: "Teste 2",
-    description: "Teste 2",
-    published: true
-  }];
-
-  const [tutorials, setTutorials] = useState([]);
+  
   const [currentTutorial, setCurrentTutorial] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(-1);
   const [searchTitle, setSearchTitle] = useState("");
+  /* use react-firebase-hooks */
+  const [tutorials, loading, error] = useList(TutorialDataService.getAll());
 
   const [page, setPage] = useState(1);
   const [count, setCount] = useState(0);
   const [pageSize, setPageSize] = useState(3);
 
   const pageSizes = [3, 6, 9];
-
-  useEffect(() => {
-    retrieveTutorialsTotalPages()
-    retrieveTutorials();
-  }, []);
 
   const getRequestParams = (page, pageSize) => {
     let params = {};
@@ -54,32 +39,7 @@ const TutorialsList = () => {
     setSearchTitle(searchTitle);
   };
 
-  const retrieveTutorials = () => {
-    const params = getRequestParams(page, pageSize);
-
-    TutorialDataService.getAllPagination(params)
-    .then(response => {
-      setTutorials(response.data);
-      console.log(response.data)
-    })
-    .catch(e => {
-      console.log(e);
-    });
-  };
-
-  const retrieveTutorialsTotalPages = () => {
-    TutorialDataService.getAll()
-    .then(response => {
-      setCount(Math.ceil(response.data.length/pageSize));
-    })
-    .catch(e => {
-      console.log(e);
-    });
-  };
-
   const refreshList = () => {
-    retrieveTutorialsTotalPages()
-    retrieveTutorials();
     setCurrentTutorial(null);
     setCurrentIndex(-1);
   };
@@ -87,27 +47,27 @@ const TutorialsList = () => {
   useEffect(refreshList, [page, pageSize]);
 
   const deleteTutorial = (id) => {
-    TutorialDataService.remove(id)
-      .then(response => {
-        console.log(response.data);
-        refreshList();
-      })
-      .catch(e => {
-        console.log(e);
-      });
-  }
-
-  const removeAllTutorials = () => {
-    tutorials.map( (tutorial) => {
-      TutorialDataService.remove(tutorial.id)
+    //console.log(tutorials.child(id))
+    if (window.confirm('Deseja excluir?')){
+      TutorialDataService.remove(id)
         .then(response => {
           console.log(response.data);
-          retrieveTutorials();
+          refreshList();
         })
         .catch(e => {
           console.log(e);
         });
-    })
+    }
+  }
+
+  const removeAllTutorials = () => {
+    TutorialDataService.removeAll()
+      .then(() => {
+        refreshList();
+      })
+      .catch((e) => {
+        console.log(e);
+      });
   };
 
   const handlePageChange = (event, value) => {
@@ -119,33 +79,15 @@ const TutorialsList = () => {
     setPage(1);
   };
 
-  const findByTitleTotalPagination = () => {
-    TutorialDataService.findByTitle(searchTitle)
-    .then(response => {
-      setCount(Math.ceil(response.data.length/pageSize));
-    })
-    .catch(e => {
-      console.log(e);
-    });   
-  };
-
   const findByTitle = () => {
-    const params = getRequestParams(page, pageSize);
-    findByTitleTotalPagination()
-
-    TutorialDataService.findByTitleWhitPagination(searchTitle, params)
-    .then(response => {
-      setTutorials(response.data);
-      console.log(response.data);
-    })
-    .catch(e => {
-      console.log(e);
-    });   
+    //...
   };
 
   return (
     <div className="list row">
       <div className="col-md-10">
+        {error && <strong>Error: {error}</strong>}
+        {loading && <span>Loading...</span>}
         <div className="input-group mb-3">
           <input
             type="text"
@@ -179,16 +121,17 @@ const TutorialsList = () => {
             </tr>
           </thead>
           <tbody>
-          {tutorials &&
+          {!loading && 
+            tutorials &&
             tutorials.map((tutorial, index) => (
               <tr>
-                <th scope="row">{tutorial.id}</th>
-                <td>{tutorial.title}</td>
-                <td>{tutorial.description}</td>
-                <td> <Link to={"/tutorials/" + tutorial.id}
+                <th scope="row">{tutorial.key}</th>
+                <td>{tutorial.val().title}</td>
+                <td>{tutorial.val().description}</td>
+                <td> <Link to={"/tutorials/" + tutorial.key}
                   className="badge badge-warning">Edit</Link>
                 </td>
-                <td> <Link onClick={() => deleteTutorial(tutorial.id)}
+                <td> <Link onClick={() => deleteTutorial(tutorial.key)}
                   className="badge badge-danger">Remove</Link>
                 </td>
               </tr>
