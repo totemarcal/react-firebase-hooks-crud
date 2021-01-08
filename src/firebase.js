@@ -13,14 +13,14 @@ let config = {
 };*/
 
 var config = {
-  apiKey: "AIzaSyAsDiDTEf2vGA4FbSD5SE8zEshMIqp_Kcg",
-  authDomain: "crud-react-firebase-cb064.firebaseapp.com",
-  projectId: "crud-react-firebase-cb064",
-  storageBucket: "crud-react-firebase-cb064.appspot.com",
-  messagingSenderId: "491203176900",
-  appId: "1:491203176900:web:f4bb6978d7120237131c91",
+  apiKey: "XXXXXXXXXXXXXXXXXXXXX",
+  authDomain: "XXXXXXXXXXXXXXXXXXX",
+  projectId: "XXXXXXXXXXXXXXXXXXX",
+  storageBucket: "XXXXXXXXXXXXXXXXXXX",
+  messagingSenderId: "XXXXXXXXXXXXXXXXXXX",
+  appId: "XXXXXXXXXXXXXXXXXXX",
   databaseURL: "https://crud-react-firebase-cb064-default-rtdb.firebaseio.com",
-  measurementId: "G-9WSKPLSPJW"
+  measurementId: "XXXXXXXXXXXXXXXXXXX"
 };
 
 firebase.initializeApp(config);
